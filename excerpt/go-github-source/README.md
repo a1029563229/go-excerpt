@@ -208,4 +208,21 @@ fmt.Println(sf.Type) // int
 
 // 返回的是 reflect.Value
 val.Field(i)
+
+// StructField.Tag.Get 用于获取 struct 的 tag 标签
+tag := sf.Tag.Get("url") // 从 C int `url:"c"` 中获取到的值为 c
+
+// tag 为 "-" 时，默认忽略该 tag
+if tag == "-" {
+	continue
+}
+
+// 通过反射获取一个自定义 struct 的类型
+var timeType = reflect.TypeOf(time.Time{})
+
+// 判断一个自定义类型是否为空
+if v.Type() == timeType {
+	return v.Interface().(time.Time).IsZero()
+}
+
 ```
