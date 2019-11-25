@@ -99,7 +99,6 @@ const (
 - 指定分页参数
 
 ```go
-// url tag 似乎可以被 URL 解析
 type ListOptions struct {
 	// For paginated result sets, page of results to retrieve.
 	Page int `url:"page,omitempty"`
@@ -225,4 +224,9 @@ if v.Type() == timeType {
 	return v.Interface().(time.Time).IsZero()
 }
 
+// 判断某个复合类型是否实现了某个接口
+sv.Type().Implements()
+
+// 返回值
+v.Interface()
 ```
