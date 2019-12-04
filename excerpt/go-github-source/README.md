@@ -229,4 +229,21 @@ sv.Type().Implements()
 
 // 返回值
 v.Interface()
+
+// for 循环，在内部决定结束循环的条件
+for {
+	if expression {
+		break
+	}
+}
+
+// 扁平化数组合并/两个数组合并
+allRepos = append(allRepos, repos...)
+
+// context 提前触发结束
+select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+}
 ```
