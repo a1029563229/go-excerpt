@@ -126,4 +126,28 @@ secs := now.Unix()
 nanos := now.UnixNano()
 // 时间戳：毫秒
 millis := nanos / 1000000
+
+// 随机数
+rand.Intn(100)
+rand.Float64()
+
+// 字符串转换为数字
+strconv.ParseFloat("1.234", 64)
+strconv.ParseInt("0x1c8", 0, 64)
+
+// 加密
+s := "sha1 this string"
+h := sha1.New()
+h.Write([]byte(s))
+bs := h.Sum(nil)
+
+// 操作环境变量
+// BAR=2 go run main.go
+os.Setenv("FOO", "1")
+fmt.Println("FOO: ", os.Getenv("FOO"))
+fmt.Println("BAR: ", os.Getenv("BAR"))
+
+for _, e := range os.Environ() {
+	fmt.Println(e)
+}
 ```
