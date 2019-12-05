@@ -97,4 +97,33 @@ func main() {
 		fmt.Println("request: ", req, time.Now())
 	}
 }
+
+// 同类型省略部分类型声明
+func (s byLength) Swap(i, j int)
+
+// 比较两个时间的早晚
+p(then.Before(now))
+p(then.After(now))
+p(then.Equal(now))
+
+// 计算两个时间的差距
+diff := now.Sub(then)
+p(diff)
+
+p(diff.Hours())
+p(diff.Minutes())
+p(diff.Seconds())
+p(diff.Nanoseconds())
+
+// 对时间做加减法计算
+p(then.Add(diff))
+p(then.Add(-diff))
+
+now := time.Now()
+// 时间戳：秒
+secs := now.Unix()
+// 时间戳：纳秒
+nanos := now.UnixNano()
+// 时间戳：毫秒
+millis := nanos / 1000000
 ```
