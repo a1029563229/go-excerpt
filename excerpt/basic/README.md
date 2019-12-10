@@ -150,4 +150,44 @@ fmt.Println("BAR: ", os.Getenv("BAR"))
 for _, e := range os.Environ() {
 	fmt.Println(e)
 }
+
+// 限制最大线程数为 20
+var sema = make(chan struct{}, 20)
+
+func dirents(dir string) []os.FileInfo {
+	sema <- struct{}{}
+	defer func() { <-sema }()
+	entries, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "du1: %v\n", err)
+		return nil
+	}
+	return entries
+}
+
+// map 的使用技巧
+type client chan<- string
+
+var (
+	entering = make(chan client)
+	leaving  = make(chan client)
+	messages = make(chan string)
+)
+
+func broadcaster() {
+	clients := make(map[client]bool)
+	for {
+		select {
+		case msg := <-messages:
+			for cli := range clients {
+				cli <- msg
+			}
+		case cli := <-entering:
+			clients[cli] = true
+		case cli := <-leaving:
+			delete(clients, cli)
+			close(cli)
+		}
+	}
+}
 ```
