@@ -151,20 +151,6 @@ for _, e := range os.Environ() {
 	fmt.Println(e)
 }
 
-// 限制最大线程数为 20
-var sema = make(chan struct{}, 20)
-
-func dirents(dir string) []os.FileInfo {
-	sema <- struct{}{}
-	defer func() { <-sema }()
-	entries, err := ioutil.ReadDir(dir)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "du1: %v\n", err)
-		return nil
-	}
-	return entries
-}
-
 // map 的使用技巧
 type client chan<- string
 
@@ -189,5 +175,19 @@ func broadcaster() {
 			close(cli)
 		}
 	}
+}
+
+// 简单控制并发/线程数的方法
+var sema = make(chan struct{}, 20)
+
+func dirents(dir string) []os.FileInfo {
+	sema <- struct{}{}
+	defer func() { <-sema }()
+	entries, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "du1: %v\n", err)
+		return nil
+	}
+	return entries
 }
 ```
