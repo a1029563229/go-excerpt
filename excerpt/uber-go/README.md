@@ -250,3 +250,37 @@ func (s *singer) Sign(msg string) string {
   return signWithTime(msg, now)
 }
 ```
+
+### 规范
+
+- 一致性
+- 相似的声明放在一组
+
+```go
+// 同类型的常量、变量和类型声明放在一起
+const (
+  a = 1
+  b = 2
+)
+
+var (
+  a = 1
+  b = 2
+)
+
+type (
+  Area float64
+  Volume float64
+)
+
+// 仅将相关的声明放在一组，不要将不相关的声明放在一组
+
+// 分组使用的位置没有限制，例如：你可以在函数内部使用它们：
+func f() string {
+  var (
+    red   = color.New(0xff0000)
+    green = color.New(0x00ff00)
+    blue  = color.New(0x0000ff)
+  )
+}
+```
