@@ -284,3 +284,148 @@ func f() string {
   )
 }
 ```
+
+- 导入包时，在所有其他情况下，除非导入之间有直接冲突，否则应避免导入别名。
+
+- 函数分组与顺序
+  - 函数应按粗略的调用顺序排序；
+  - 同一文件的函数应按接收者分组；
+- 因此，导出的函数应先出现在文件中，放在 struct、const、var 定义的后面；
+- 在定义类型之后，但在接收者的其余方法之前，可能会出现一个 newX()/NewY()
+- 普通工具函数应在文件末尾出现；
+
+```go
+type something struct{ ... }
+
+func newSomething() *something {
+    return &something{}
+}
+
+func (s *something) Cost() {
+  return calcCost(s.weights)
+}
+
+func (s *something) Stop() {...}
+
+func calcCost(n []int) int {...}
+```
+
+- 减少嵌套：代码应通过尽可能先处理错误情况/特殊情况并尽早返回或继续循环来减少嵌套。减少嵌套多个级别代码的代码量：
+
+```go
+for _, v := range data {
+  if v.F1 != 1 {
+    log.Printf("Invalid v: %v", v)
+    continue
+  }
+
+  v = process(v)
+  if err := v.Call(); err != nil {
+    return err
+  }
+  v.Send()
+}
+```
+
+- 顶层变量声明：在顶层，使用标准 var 关键字。请勿指定类型，除非它与表达式的类型不同：
+
+```go
+var _s = F()
+// 由于 F 已经明确了返回一个字符串类型，因此我们没有必要显式指定_s 的类型
+// 还是那种类型
+
+func F() string { return "A" }
+```
+
+- 对于未导出的顶层变量和常量，使用 _ 作为前缀
+- 对未导出的顶级 vars 和 consts，前面加上前缀 _，以使它们在使用时明确表示它们是全局符号；
+- 未导出的错误值，应以 err 开头
+- 基本依据：顶级变量和常量具有包范围作用域。使用通用名称可能很容易在其他文件中意外使用错误的值：
+
+```go
+var (
+  _defaultPort = 8080
+  _defaultUser = "user"
+)
+```
+
+- 结构体中的嵌入：嵌入式类型（例如 mutex）应位于结构体内字段列表的顶部，并且必须有一个空行将嵌入式字段和常规字段分割开：
+
+```go
+type Client struct {
+  http.Client
+
+  version int
+}
+```
+
+- nil 是一个有效的 slice
+
+```go
+// 您不应明确返回长度为零的切片。应该返回 nil 来代替
+if x == "" {
+  return nil
+}
+
+// 要检查切片是否为空，请始终使用 len(s) == 0。而非 nil
+func isEmpty(s []string) bool {
+  return len(s) == 0
+}
+
+// 零值切片（用 var 声明的切片）可立即使用，无需调用 make() 创建
+var nums []int
+
+if add1 {
+  nums = append(nums, 1)
+}
+
+if add2 {
+  nums = append(nums, 2)
+}
+```
+
+- 小变量作用域：如果有可能，尽量缩小变量作用范围。除非它与减少嵌套的规则冲突；
+- 如果需要在 if 之外使用函数调用的结果，则不尝试缩小范围：
+
+```go
+data, err := ioutil.Readfile(name)
+if err != nil {
+  return err
+}
+
+if err := cfg.Decode(data); err != nil {
+  return err
+}
+
+fmt.Println(cfg)
+return nil
+```
+
+- 初始化 Struct 引用：在初始化结构引用时，请使用 &T{} 代替 new(T)，以使其与结构体初始化一致：
+
+```go
+sval := T{Name: "foo"}
+
+sptr := &T{Name: "bar"9}
+```
+
+- 初始化 Maps：对于空 map 请使用 make(..) 初始化， 并且 map 是通过编程方式填充的。 这使得 map 初始化在表现上不同于声明，并且它还可以方便地在 make 后添加大小提示。
+- 基本准则是：在初始化时使用 map 初始化列表 来添加一组固定的元素。否则使用 make (如果可以，请尽量指定 map 容量)。
+
+```go
+var (
+  // m1 读写安全;
+  // m2 在写入时会 panic
+  m1 = make(map[T1]T2)
+  m2 map[T1]T2
+)
+```
+
+- 字符串 string format：如果你为 Printf-style 函数声明格式化字符串，请将格式化字符串放在外面，并将其设置为 const 常量；
+- 这有助于 go vet 对格式字符串执行静态分析：
+
+```go
+const msg = "unexpected values %v, %v\n"
+fmt.Printf(msg, 1, 2)
+```
+
