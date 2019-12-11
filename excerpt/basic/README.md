@@ -190,4 +190,7 @@ func dirents(dir string) []os.FileInfo {
 	}
 	return entries
 }
+
+// 返回更详细的错误信息
+return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
 ```
