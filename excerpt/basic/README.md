@@ -2,15 +2,15 @@
 
 ```go
 i := 1
-	fmt.Println("Write ", i, " as ")
-	switch i {
-	case 1:
-		fmt.Println("one")
-	case 2:
-		fmt.Println("two")
-	case 3:
-		fmt.Println("three")
-  }
+fmt.Println("Write ", i, " as ")
+switch i {
+case 1:
+	fmt.Println("one")
+case 2:
+	fmt.Println("two")
+case 3:
+	fmt.Println("three")
+}
 
 // 在 Go 中输出 one，如果是 Javascript 则输出 one two three
 // 在 Go 中匹配到匹配项后会自动跳出 switch
@@ -190,4 +190,12 @@ func dirents(dir string) []os.FileInfo {
 	}
 	return entries
 }
+
+// ReadAll是很常用的一个方法，用来一次性的读取io.Reader当中的数据。
+// ioutil.ReadAll(resp.Body) 会先将所有的响应读出来放到内存中。如果文件太大，那么就会消耗很多内存。这样是不明智的。
+// io 包提供了 io.Copy() 方法，该方法实现了两个文件句柄之间的拷贝。
+ioutil.ReadAll()
+
+// 格式化 bytes
+fmt.Printf("%s", bytes)
 ```
