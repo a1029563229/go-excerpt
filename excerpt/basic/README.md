@@ -198,4 +198,6 @@ ioutil.ReadAll()
 
 // 格式化 bytes
 fmt.Printf("%s", bytes)
+// 返回更详细的错误信息
+return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
 ```
