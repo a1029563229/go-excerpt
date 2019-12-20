@@ -200,4 +200,8 @@ ioutil.ReadAll()
 fmt.Printf("%s", bytes)
 // 返回更详细的错误信息
 return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+
+// 正则的基本使用
+tagRE := regexp.MustCompile("[0-9]{3}?")
+tag := tagRE.FindString(target)
 ```
