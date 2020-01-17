@@ -262,4 +262,82 @@ func formatAtom(v reflect.Value) string {
 // 正则的基本使用
 tagRE := regexp.MustCompile("[0-9]{3}?")
 tag := tagRE.FindString(target)
+
+// 利用反射完成对 JSON 的序列化
+func Marshal(v interface{}) []byte {
+	buffer := bytes.NewBufferString("")
+	marshal(buffer, reflect.ValueOf(v))
+	return buffer.Bytes()
+}
+
+func marshal(buffer *bytes.Buffer, v reflect.Value) {
+	switch v.Kind() {
+	case reflect.Ptr:
+		marshal(buffer, v.Elem())
+	case reflect.Slice, reflect.Array:
+		buffer.WriteString("[")
+		for i := 0; i < v.Len(); i++ {
+			marshal(buffer, v.Index(i))
+
+			if i != v.Len()-1 {
+				buffer.WriteString(",")
+			}
+		}
+		buffer.WriteString("]")
+	case reflect.Struct:
+		buffer.WriteString("{")
+		t := v.Type()
+		for i := 0; i < v.NumField(); i++ {
+			buffer.WriteString(fmt.Sprintf("%q:", getFieldName(t.Field(i))))
+			marshal(buffer, v.Field(i))
+
+			if i != v.NumField()-1 {
+				buffer.WriteString(",")
+			}
+		}
+		buffer.WriteString("}")
+	case reflect.Map:
+		buffer.WriteString("{")
+		for i, key := range v.MapKeys() {
+			buffer.WriteString(fmt.Sprintf("%q:", key))
+			marshal(buffer, v.MapIndex(key))
+
+			if i != len(v.MapKeys())-1 {
+				buffer.WriteString(",")
+			}
+		}
+		buffer.WriteString("}")
+	default:
+		buffer.WriteString(fmt.Sprintf("%s", formatValue(v)))
+	}
+}
+
+func formatValue(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+		return fmt.Sprintf("%d", v.Int())
+	default:
+		return fmt.Sprintf("%q", v)
+	}
+}
+
+func getFieldName(t reflect.StructField) string {
+	tag := t.Tag.Get("json")
+	if tag == "" {
+		tag = t.Name
+	}
+	return tag
+}
+
+// 扁平化的参数应该只传递一次
+func (e *Engine) Use(middleware ...HandlerFunc) *Engine {
+	e.RouterGroup.Use(middleware)
+	return e
+}
+
+type HandlerChain []HandlerFunc
+
+func (r *RouterGroup) Use(handlers HandlerChain) {
+	r.handlers = handlers
+}
 ```
